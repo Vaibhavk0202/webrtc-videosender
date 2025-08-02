@@ -18,33 +18,42 @@ export const connectToSocket = (server) => {
 
     io.on("connection", (socket) => {
 
-        console.log("SOMETHING CONNECTED")
+        // Reject undefined or malformed paths
+    if (!path || typeof path !== "string" ) {
+        console.warn("⚠️ Invalid path received:", path);
+        return;
+    }
 
         socket.on("join-call", (path) => {
+    if (!path || typeof path !== "string") {
+        console.warn("⚠️ Invalid path received:", path);
+        return;
+    }
 
-            if (connections[path] === undefined) {
-                connections[path] = []
-            }
-            connections[path].push(socket.id)
+    if (!connections[path]) {
+        connections[path] = [];
+    }
+    connections[path].push(socket.id);
+    timeOnline[socket.id] = new Date();
 
-            timeOnline[socket.id] = new Date();
+    // Notify all users in the room
+    for (let a = 0; a < connections[path].length; a++) {
+        io.to(connections[path][a]).emit("user-joined", socket.id, connections[path]);
+    }
 
-            // connections[path].forEach(elem => {
-            //     io.to(elem)
-            // })
+    // Replay old messages
+    if (messages[path]) {
+        for (let a = 0; a < messages[path].length; ++a) {
+            io.to(socket.id).emit(
+                "chat-message",
+                messages[path][a].data,
+                messages[path][a].sender,
+                messages[path][a]["socket-id-sender"]
+            );
+        }
+    }
+});
 
-            for (let a = 0; a < connections[path].length; a++) {
-                io.to(connections[path][a]).emit("user-joined", socket.id, connections[path])
-            }
-
-            if (messages[path] !== undefined) {
-                for (let a = 0; a < messages[path].length; ++a) {
-                    io.to(socket.id).emit("chat-message", messages[path][a]['data'],
-                        messages[path][a]['sender'], messages[path][a]['socket-id-sender'])
-                }
-            }
-
-        })
 
         socket.on("signal", (toId, message) => {
             io.to(toId).emit("signal", socket.id, message);

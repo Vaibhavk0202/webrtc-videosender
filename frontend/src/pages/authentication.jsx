@@ -14,10 +14,11 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AuthContext } from '../contexts/AuthContext';
 import { Snackbar } from '@mui/material';
+import { useNavigate } from "react-router-dom";
 
 
 
-// TODO remove, this demo shouldn't need to reset the theme.
+
 
 const defaultTheme = createTheme();
 
@@ -25,12 +26,13 @@ export default function Authentication() {
 
     
 
-    const [username, setUsername] = React.useState();
-    const [password, setPassword] = React.useState();
-    const [name, setName] = React.useState();
+    const [username, setUsername] = React.useState("");
+    const [password, setPassword] = React.useState("");
+    const [name, setName] = React.useState("");
     const [error, setError] = React.useState();
     const [message, setMessage] = React.useState();
 
+     const navigate = useNavigate();
 
     const [formState, setFormState] = React.useState(0);
 
@@ -40,30 +42,45 @@ export default function Authentication() {
     const { handleRegister, handleLogin } = React.useContext(AuthContext);
 
     let handleAuth = async () => {
-        try {
-            if (formState === 0) {
-
-                let result = await handleLogin(username, password)
-
-
+    try {
+        if (formState === 1) {
+            if (!name || !username || !password) {
+                setError("Please fill in all fields.");
+                return;
             }
-            if (formState === 1) {
-                let result = await handleRegister(name, username, password);
-                console.log(result);
+
+            const result = await handleRegister(name, username, password);
+            console.log(result);
+
+            if (result.success) {
                 setUsername("");
-                setMessage(result);
+                setPassword("");
+                setName(""); 
+                setMessage(result.message);
                 setOpen(true);
-                setError("")
-                setFormState(0)
-                setPassword("")
-            }
-        } catch (err) {
+                setError("");
+                setFormState(0);
+                navigate("/home");
 
-            console.log(err);
-            let message = (err.response.data.message);
-            setError(message);
+            } else {
+                setError(result.message); 
+            }
+
+        } else {
+            if (!username || !password) {
+                setError("Username and password required.");
+                return;
+            }
+
+            await handleLogin(username, password);
         }
+    } catch (err) {
+        console.log(err);
+        const message = err?.response?.data?.message || "Something went wrong";
+        setError(message);
     }
+};
+
 
 
     return (

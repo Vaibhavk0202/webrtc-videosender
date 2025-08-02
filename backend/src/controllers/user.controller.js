@@ -91,8 +91,9 @@ const register = async (req, res) => {
         }
 
         const trimmedName = name.trim();
-        const trimmedUsername = username.trim();
+        const trimmedUsername = username.trim().toLowerCase();
         const trimmedPassword = password.trim();
+        console.log("Trying to register username:", trimmedUsername);
 
         if (!trimmedName || !trimmedUsername || !trimmedPassword) {
             return res.status(httpStatus.BAD_REQUEST).json({ 
@@ -115,7 +116,7 @@ const register = async (req, res) => {
             });
         }
 
-        const existingUser = await User.findOne({ username: trimmedUsername });
+const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${trimmedUsername}$`, 'i') } });
         if (existingUser) {
             return res.status(httpStatus.CONFLICT).json({ 
                 success: false,

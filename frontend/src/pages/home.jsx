@@ -19,6 +19,10 @@ function HomeComponent() {
         navigate(`/${meetingCode}`)
     }
 
+    const handleClick = () => {
+    navigate("/CreateMeeting");
+  };
+
     return (
         <>
 
@@ -26,7 +30,7 @@ function HomeComponent() {
 
                 <div style={{ display: "flex", alignItems: "center" }}>
 
-                    <h2>Apna Video Call</h2>
+                    <h2>Tada Video Call</h2>
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center" }}>
@@ -60,6 +64,9 @@ function HomeComponent() {
 
                             <TextField onChange={e => setMeetingCode(e.target.value)} id="outlined-basic" label="Meeting Code" variant="outlined" />
                             <Button onClick={handleJoinVideoCall} variant='contained'>Join</Button>
+                            <Button onClick={handleClick} variant="contained">
+                                Create a Meeting
+                                </Button>
 
                         </div>
                     </div>

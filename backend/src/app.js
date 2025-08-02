@@ -33,6 +33,7 @@ app.use(express.json({ limit: "40kb" }));
 app.use(express.urlencoded({ limit: "40kb", extended: true }));
 
 // Routes
+console.log("✅ Mounting /api/v1/users");
 app.use("/api/v1/users", userRoutes);
 
 // Health check route

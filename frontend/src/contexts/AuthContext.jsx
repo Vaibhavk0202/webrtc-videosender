@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
 
             const request = await client.post("/register", {
                 name: name.trim(),
-                username: username.trim(),
+                username: username.trim().toLowerCase(),
                 password: password.trim()
             });
 
